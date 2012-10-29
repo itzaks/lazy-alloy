@@ -10,8 +10,8 @@ _compile_coffee = (coffee_file, js_file) ->
   fs.writeFileSync js_file, compiled, 'utf8'
 
 exports.pre_compile = (event, logger) ->
-  logger.info "----- COFFEEALLOY PREPROCESSER -----"
-  logger.info "Preprocessing CoffeeScript files in [project]/app/"
+  logger.info "----- COFFEEALLOY PREPROCESSOR -----"
+  logger.info "Preprocessing CoffeeScript files in [project_root]/app/"
   coffee_files = glob.sync("/**/*.coffee",
     cwd: event.dir.home,
     root: event.dir.home,
@@ -19,7 +19,7 @@ exports.pre_compile = (event, logger) ->
     nonull: false,
   )
   
-  logger.info "No '*.coffee' scripts need to preprocess" if coffee_files.length>0
+  logger.info "No '*.coffee' scripts need to preprocess" if coffee_files.length==0
   
   for coffee_file in coffee_files
     preprocessed = false

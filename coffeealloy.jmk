@@ -19,15 +19,15 @@ _compile_coffee = function(coffee_file, js_file) {
 
 exports.pre_compile = function(event, logger) {
   var coffee_file, coffee_files, coffee_timestamp, js_file, js_timestamp, preprocessed, _i, _len, _results;
-  logger.info("----- COFFEEALLOY PREPROCESSER -----");
-  logger.info("Preprocessing CoffeeScript files in [project]/app/");
+  logger.info("----- COFFEEALLOY PREPROCESSOR -----");
+  logger.info("Preprocessing CoffeeScript files in [project_root]/app/");
   coffee_files = glob.sync("/**/*.coffee", {
     cwd: event.dir.home,
     root: event.dir.home,
     nosort: true,
     nonull: false
   });
-  if (coffee_files.length > 0) {
+  if (coffee_files.length === 0) {
     logger.info("No '*.coffee' scripts need to preprocess");
   }
   _results = [];
