@@ -13,7 +13,9 @@ coffee = require("coffee-script");
 _compile_coffee = function(coffee_file, js_file) {
   var compiled, data;
   data = fs.readFileSync(coffee_file, 'utf8');
-  compiled = coffee.compile(data);
+  compiled = coffee.compile(data, {
+    bare: true
+  });
   return fs.writeFileSync(js_file, compiled, 'utf8');
 };
 
