@@ -37,14 +37,14 @@ Install titanium and alloy:
     alloy generate jmk
 1. Download latest [coffee-alloy preprocessor](https://raw.github.com/brantyoung/coffee-alloy/master/coffeealloy.jmk), and save as `[project_root]/app/coffeealloy.jmk`
 1. Edit genrated `alloy.jmk` file, and invoke `coffee-alloy preporcessor` like this:
-
-    var path = require('path');
-
-    task("pre:compile", function(event,logger) {
-        var coffeealloy = require(path.join(event.dir.home, 'coffeealloy.jmk'));
-        coffeealloy.pre_compile(event, logger)
-    });
-
-    task("post:compile",function(event,logger){
-        logger.info('compile finished!');
-    });
+        
+        var path = require('path');
+    
+        task("pre:compile", function(event,logger) {
+            var coffeealloy = require(path.join(event.dir.home, 'coffeealloy.jmk'));
+            coffeealloy.pre_compile(event, logger)
+        });
+    
+        task("post:compile",function(event,logger){
+            logger.info('compile finished!');
+        });
