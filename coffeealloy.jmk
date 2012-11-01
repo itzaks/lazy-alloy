@@ -8,7 +8,7 @@ glob = require("glob");
 
 util = require("util");
 
-coffee = require('coffee-script');
+coffee = require("coffee-script");
 
 _compile_coffee = function(coffee_file, js_file) {
   var compiled, data;
@@ -18,7 +18,7 @@ _compile_coffee = function(coffee_file, js_file) {
 };
 
 exports.pre_compile = function(event, logger) {
-  var coffee_file, coffee_files, coffee_timestamp, js_file, js_timestamp, preprocessed, _i, _len, _results;
+  var coffee_file, coffee_files, js_file, _i, _len, _results;
   logger.info("----- COFFEEALLOY PREPROCESSOR -----");
   logger.info("Preprocessing CoffeeScript files in [project_root]/app/");
   coffee_files = glob.sync("/**/*.coffee", {
@@ -33,19 +33,9 @@ exports.pre_compile = function(event, logger) {
   _results = [];
   for (_i = 0, _len = coffee_files.length; _i < _len; _i++) {
     coffee_file = coffee_files[_i];
-    preprocessed = false;
-    coffee_timestamp = util.inspect(fs.lstat(coffee_file)).ctime;
     js_file = coffee_file.substring(0, coffee_file.length - 6).toString() + "js";
-    if (fs.existsSync(js_file)) {
-      js_timestamp = util.inspect(fs.lstat(js_file)).ctime;
-      preprocessed = (coffee_timestamp > js_timestamp ? false : true);
-    }
-    if (!preprocessed) {
-      logger.info("- Preprocessing: " + path.relative(event.dir.project, coffee_file));
-      _results.push(_compile_coffee(coffee_file, js_file));
-    } else {
-      _results.push(void 0);
-    }
+    logger.info("- Preprocessing: " + path.relative(event.dir.project, coffee_file));
+    _results.push(_compile_coffee(coffee_file, js_file));
   }
   return _results;
 };
