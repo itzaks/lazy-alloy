@@ -1,0 +1,21 @@
+{
+  "name": "lazy-alloy",
+  "version": "0.0.1",
+  "description": "Write Alloy apps in coffee-script, jade and coffee-css",
+  "main": "lazyalloy.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "zzzwww",
+  "license": "BSD",
+  "dependencies": {
+    "glob": "~3.1.17",
+    "coffee-script": "~1.4.0",
+    "stylus": "~0.32.0",
+    "jade": "~0.28.1",
+    "sty": "latest",
+    "watchr": "latest",
+    "commander": "1.1.1"
+  }
+}
