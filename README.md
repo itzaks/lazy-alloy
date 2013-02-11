@@ -35,5 +35,9 @@ Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but event
 
 ###Example
 	node lazy-alloy.js -w -p ios
+	
+##Todo
+
+Make npm-plugin.. hrrm
 
 ![AFRICA!](http://24.media.tumblr.com/60efb9b1b8da24b3250c1ab21232c2b8/tumblr_mhtwirmVV51r8sj1to1_500.jpg)
