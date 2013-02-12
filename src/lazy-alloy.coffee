@@ -5,6 +5,8 @@ coffee = require("coffee-script")
 jade = require("jade")
 sty = require('sty')
 
+directory = process.cwd()
+
 console.info = (msg) ->
   console.log sty.red msg
 
@@ -47,7 +49,7 @@ class Application
     console.info "Waiting for file change..."
 
     watchr.watch
-      paths: [__dirname]
+      paths: [directory]
       listeners:
         error: (err) ->
           console.log "an error occured:", err
@@ -102,8 +104,8 @@ class Compiler
     @logger.info "Preprocessing #{ from } files in [project_root]#{ path.replace("/**", "/app") }"
 
     @files glob.sync(path,
-      cwd: __dirname,
-      root: __dirname,
+      cwd: directory,
+      root: directory,
       nosort: true,
       nonull: false,
     ), from, to

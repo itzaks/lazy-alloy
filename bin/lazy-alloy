@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 //thin wrapper
-require('../lazy-alloy.js')();
+require('../lazy-alloy.js');

@@ -19,25 +19,18 @@ Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but event
 * npm
 * titanium *(cli)*
 * alloy
-* brain
+* brain *(optional)*
 
-### Setup
+### ???¿¿¿
 
-1. Clone repo in application root.
-2. `npm install`
-3. *(optional)* Hack `src/lazy-alloy.coffee` until it fits your needs and `coffee -c -b lazy-alloy.coffee > lazy-alloy.js && mv lazy-alloy.js ../`
-4. Run `node lazy-alloy.js` with preferred option(s)
+1. `npm install -g lazy-alloy`
+2. navigate to alloys `app/`
+3. `lazy-alloy -w -p ios`
 
 ###Options
     -c, --compile              Just compile.
     -w, --watch                Watch file changes & compile.
     -p, --platform [platform]  Run titanium on `platform`
-
-###Example
-	node lazy-alloy.js -w -p ios
 	
-##Todo
-
-Make npm-plugin.. hrrm
 
 ![AFRICA!](http://24.media.tumblr.com/60efb9b1b8da24b3250c1ab21232c2b8/tumblr_mhtwirmVV51r8sj1to1_500.jpg)
