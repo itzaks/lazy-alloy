@@ -9,6 +9,8 @@
   "repository": "",
   "author": "zzzwww",
   "license": "BSD",
+  "main": "lazy-alloy.js",
+  "bin" : { "lazyalloy" : "./bin/lazy-alloy"},
   "dependencies": {
     "glob": "~3.1.17",
     "coffee-script": "~1.4.0",
