@@ -27,10 +27,17 @@ Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but event
 2. navigate to alloys `app/`
 3. `lazy-alloy -w -p ios`
 
+### Good to know
+the styles files needs to begin with `somevariable =` like so (for the compilation to work):
+
+    tss = 
+      width: "50%"
+      backgroundColor: '#fff'
+
 ###Options
     -c, --compile              Just compile.
     -w, --watch                Watch file changes & compile.
     -p, --platform [platform]  Run titanium on `platform`
-	
+  
 
 ![AFRICA!](http://24.media.tumblr.com/60efb9b1b8da24b3250c1ab21232c2b8/tumblr_mhtwirmVV51r8sj1to1_500.jpg)

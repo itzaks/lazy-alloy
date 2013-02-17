@@ -24,11 +24,13 @@ console.debug = function(msg) {
 };
 
 Application = (function() {
+  var getFileType;
 
   function Application() {
     this.program = require('commander');
     this.compiler = new Compiler();
-    this.program.version('0.0.1').option('-c, --compile', 'Just compile.').option('-w, --watch', 'Watch file changes & compile.').option('-p, --platform [platform]', 'Run titanium on `platform`').parse(process.argv);
+    this.titanium = null;
+    this.program.version('0.0.2').option('-c, --compile', 'Just compile.').option('-w, --watch', 'Watch file changes & compile.').option('-p, --platform [platform]', 'Run titanium on `platform`').parse(process.argv);
     if (this.program.compile) {
       return this.compile();
     }
@@ -38,7 +40,7 @@ Application = (function() {
     if (this.program.platform) {
       return this.build();
     }
-    console.info("nothing to do.. zzz");
+    console.info("nothing to do!");
   }
 
   Application.prototype.compile = function() {
@@ -46,13 +48,37 @@ Application = (function() {
   };
 
   Application.prototype.build = function() {
-    var exec, sh, sys;
-    sys = require("sys");
+    var alloy, exec, spawn,
+      _this = this;
+    spawn = require("child_process").spawn;
     exec = require("child_process").exec;
-    sh = "titanium build -p " + this.program.platform;
-    console.log(sh);
-    return exec(sh, function(error, stdout, stderr) {
-      return sys.puts(stdout);
+    if (this.titanium !== null) {
+      console.info("stopping titanium...");
+      this.titanium.kill();
+    }
+    alloy = exec("alloy compile", function(error, stdout, stderr) {
+      if (stdout) {
+        console.debug(stdout);
+      }
+      if (stderr) {
+        return console.log(stderr);
+      }
+    });
+    return alloy.on('exit', function(code) {
+      console.log("alloy stopped with code " + code);
+      if (code !== 1) {
+        console.info("starting titanium...");
+        _this.titanium = spawn("titanium", ["build", "-p", _this.program.platform]);
+        _this.titanium.stdout.on("data", function(data) {
+          return console.log("titanium: " + data);
+        });
+        _this.titanium.stderr.on("data", function(data) {
+          return console.log("titanium: " + data);
+        });
+        return _this.titanium.on("exit", function(code) {
+          return console.log("titanium exited with code " + code);
+        });
+      }
     });
   };
 
@@ -72,7 +98,7 @@ Application = (function() {
           if (changeType !== "create" && changeType !== "update") {
             return;
           }
-          file = _this._getFileType(filePath);
+          file = getFileType(filePath);
           if (!file) {
             return;
           }
@@ -94,7 +120,7 @@ Application = (function() {
     };
   };
 
-  Application.prototype._getFileType = function(path) {
+  getFileType = function(path) {
     var inpath;
     inpath = function(name) {
       return !!~path.indexOf(name);
@@ -108,16 +134,22 @@ Application = (function() {
     if (!inpath(".coffee")) {
       return null;
     }
-    if (inpath("controllers/")) {
-      return {
-        type: "controller",
-        fromTo: ["coffee", "js"]
-      };
-    }
     if (inpath("styles/")) {
       return {
         type: "style",
         fromTo: ["coffee", "tss"]
+      };
+    }
+    if (inpath("alloy.coffee")) {
+      return {
+        type: "alloy",
+        fromTo: ["coffee", "js"]
+      };
+    }
+    if (inpath("controllers/")) {
+      return {
+        type: "controller",
+        fromTo: ["coffee", "js"]
       };
     }
   };

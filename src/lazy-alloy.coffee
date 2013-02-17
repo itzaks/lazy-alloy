@@ -13,13 +13,16 @@ console.info = (msg) ->
 console.debug = (msg) ->
   console.log sty.green msg
 
+
+
 class Application
   constructor: ->
     @program = require('commander')
     @compiler = new Compiler()
+    @titanium = null
 
     @program
-      .version('0.0.1')
+      .version('0.0.2')
       .option('-c, --compile', 'Just compile.')
       .option('-w, --watch', 'Watch file changes & compile.')
       .option('-p, --platform [platform]', 'Run titanium on `platform`')
@@ -29,19 +32,39 @@ class Application
     return @watch() if @program.watch
     return @build() if @program.platform
 
-    console.info "nothing to do.. zzz"
+    console.info "nothing to do!"
 
   compile: ->
     @compiler.all()
 
   build: ->
-    sys = require("sys")
+    spawn = require("child_process").spawn
     exec = require("child_process").exec
 
-    sh = "titanium build -p #{ @program.platform }"
-    console.log sh
-    exec sh, (error, stdout, stderr) ->
-      sys.puts stdout
+    if @titanium isnt null
+      console.info "stopping titanium..."
+      @titanium.kill() 
+
+    alloy = exec "alloy compile", (error, stdout, stderr) ->
+      console.debug stdout if stdout
+      console.log stderr if stderr
+
+    alloy.on 'exit', (code) =>
+      console.log "alloy stopped with code #{ code }"
+
+      if code isnt 1
+        console.info "starting titanium..."
+
+        @titanium = spawn "titanium", ["build", "-p", @program.platform]
+
+        @titanium.stdout.on "data", (data) ->
+          console.log "titanium: " + data
+
+        @titanium.stderr.on "data", (data) ->
+          console.log "titanium: " + data
+
+        @titanium.on "exit", (code) ->
+          console.log "titanium exited with code " + code
 
   watch: ->
     watchr = require("watchr")
@@ -58,12 +81,11 @@ class Application
           return unless changeType in ["create", "update"]
 
           #only compile correct files
-          file = @_getFileType filePath
+          file = getFileType filePath
           return unless file
 
           @compiler.files [filePath], file.fromTo[0], file.fromTo[1]
 
-          #build only if asked
           @build() if @program.platform 
 
     next: (err, watchers) ->
@@ -72,7 +94,8 @@ class Application
       else
         console.debug "Waiting for file change..."
 
-  _getFileType: (path) ->
+  getFileType = (path) ->
+    #check if file path contains string
     inpath = (name) ->
       !!~ path.indexOf name
 
@@ -80,8 +103,9 @@ class Application
 
     return null unless inpath ".coffee"
 
-    return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
     return {type: "style", fromTo: ["coffee", "tss"]} if inpath "styles/"
+    return {type: "alloy", fromTo: ["coffee", "js"]} if inpath "alloy.coffee"
+    return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
 
 class Compiler
   logger: console
