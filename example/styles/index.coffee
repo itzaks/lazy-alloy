@@ -1,8 +1,8 @@
-tss = 
-	".container": 
+tss =
+	".container":
 		backgroundColor: "red"
 
-	"Label": 
+	"Label":
 		width: Ti.UI.SIZE
 		height: Ti.UI.SIZE
 		color: "#fff"

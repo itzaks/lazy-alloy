@@ -1,6 +1,6 @@
 fs = require("fs")
 path = require("path")
-glob = require("glob")
+match = require("match-files")
 coffee = require("coffee-script")
 jade = require("jade")
 sty = require('sty')
@@ -18,7 +18,6 @@ console.debug = (msg) ->
 class Application
   constructor: ->
     @program = require('commander')
-    @compiler = new Compiler()
     @titanium = null
 
     @program
@@ -26,7 +25,10 @@ class Application
       .option('-c, --compile', 'Just compile.')
       .option('-w, --watch', 'Watch file changes & compile.')
       .option('-p, --platform [platform]', 'Run titanium on `platform`')
+      .option('-d, --directory [dirname]', 'Run in specific subfolder')
       .parse(process.argv)
+
+    @compiler = new Compiler (@program.directory or "")
 
     return @compile() if @program.compile
     return @watch() if @program.watch
@@ -43,7 +45,7 @@ class Application
 
     if @titanium isnt null
       console.info "stopping titanium..."
-      @titanium.kill() 
+      @titanium.kill()
 
     alloy = exec "alloy compile", (error, stdout, stderr) ->
       console.debug stdout if stdout
@@ -86,7 +88,7 @@ class Application
 
           @compiler.files [filePath], file.fromTo[0], file.fromTo[1]
 
-          @build() if @program.platform 
+          @build() if @program.platform
 
     next: (err, watchers) ->
       if err
@@ -109,15 +111,16 @@ class Application
 
 class Compiler
   logger: console
+  constructor: (@subfolder) ->
 
   views: ->
-    @process "/**/views/*.jade", "jade", "xml"
-  
+    @process "views/", "jade", "xml"
+
   controllers: ->
-    @process "/**/controllers/*.coffee", "coffee", "js"
+    @process "controllers/", "coffee", "js"
 
   styles: ->
-    @process "/**/styles/*.coffee", "coffee", "tss"
+    @process "styles/", "coffee", "tss"
 
   all: ->
     @views()
@@ -125,14 +128,12 @@ class Compiler
     @styles()
 
   process: (path, from, to) ->
-    @logger.info "Preprocessing #{ from } files in [project_root]#{ path.replace("/**", "/app") }"
+    path = @subfolder + path
+    @logger.info "Preprocessing #{ from } files in #{ path }"
 
-    @files glob.sync(path,
-      cwd: directory,
-      root: directory,
-      nosort: true,
-      nonull: false,
-    ), from, to
+    filter = (dir) -> dir.indexOf(".#{ from }") isnt -1
+
+    match.find (process.cwd() + "/" + path), {fileFilters: [filter]}, (err, files) => @files files, from, to
 
   file: (from, output, type) ->
     @logger.debug "Building #{type}: #{from} --> #{output}"
@@ -149,7 +150,7 @@ class Compiler
       filenameWithNewExt = file.substring(0, file.length - from.length).toString() + "#{ to }"
       @file file, filenameWithNewExt, to
 
-  build: 
+  build:
     xml: (data) ->
       jade.compile(data,
         pretty: true
