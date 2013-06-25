@@ -22,14 +22,17 @@ class Application
 
     @program
       .version('0.0.2')
+      .option('-s, --setup', 'Setup lazy-alloy directory structure.')
       .option('-c, --compile', 'Just compile.')
       .option('-w, --watch', 'Watch file changes & compile.')
       .option('-p, --platform [platform]', 'Run titanium on `platform`')
-      .option('-d, --directory [dirname]', 'Run in specific subfolder')
+      .option('-d, --directory [dirname]', 'Set source directory (default `src/`)')
       .parse(process.argv)
 
-    @compiler = new Compiler (@program.directory or "")
+    @subfolder = @program.directory or 'src/'
+    @compiler = new Compiler(@subfolder)
 
+    return @setup() if @program.setup
     return @compile() if @program.compile
     return @watch() if @program.watch
     return @build() if @program.platform
@@ -96,6 +99,15 @@ class Application
       else
         console.debug "Waiting for file change..."
 
+  setup: ->
+    @subfolder += '/' unless @subfolder.charAt(@subfolder.length-1) == '/'
+    console.info 'Setting up folder structure...'
+    @compiler.mkdirSync @subfolder
+    @compiler.mkdirSync @subfolder+'views'
+    @compiler.mkdirSync @subfolder+'styles'
+    @compiler.mkdirSync @subfolder+'controllers'
+    console.debug 'Setup complete.'
+
   getFileType = (path) ->
     #check if file path contains string
     inpath = (name) ->
@@ -111,7 +123,7 @@ class Application
 
 class Compiler
   logger: console
-  constructor: (@subfolder) ->
+  constructor: (@subfolder = 'src/') ->
 
   views: ->
     @process "views/", "jade", "xml"
@@ -141,14 +153,19 @@ class Compiler
     compiled = @build[type] data
     fs.writeFileSync output, compiled, 'utf8'
 
-  files: (files, from, to) ->
+  files: (files, from, to, to_path) ->
     return @logger.debug "No '*.#{from}' files need to preprocess.. #{files.length} files" if files.length is 0
 
     for file in files
       break if !!~ file.indexOf "lazyalloy"
 
-      filenameWithNewExt = file.substring(0, file.length - from.length).toString() + "#{ to }"
-      @file file, filenameWithNewExt, to
+      output = file.substring(0, file.length - from.length).toString() + to
+      output = output.replace(new RegExp('(.*)'+@subfolder), '$1app/') # Replacing subfolder with app. Only last occurence in case it exists twice in the path.
+
+      @file file, output, to
+
+  mkdir: (path) ->
+    if fs.existsSync(path) then console.debug("#{path} already exists, doing nothing") else fs.mkdirSync path
 
   build:
     xml: (data) ->
@@ -168,5 +185,6 @@ class Compiler
 
     js: (data) ->
       coffee.compile data.toString(), {bare: true}
+
 
 module.exports = new Application
