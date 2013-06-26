@@ -102,10 +102,15 @@ class Application
   setup: ->
     @subfolder += '/' unless @subfolder.charAt(@subfolder.length-1) == '/'
     console.info 'Setting up folder structure...'
-    @compiler.mkdirSync @subfolder
-    @compiler.mkdirSync @subfolder+'views'
-    @compiler.mkdirSync @subfolder+'styles'
-    @compiler.mkdirSync @subfolder+'controllers'
+    @compiler.mkdir @subfolder
+    @compiler.mkdir @subfolder+'views'
+    @compiler.mkdir @subfolder+'styles'
+    @compiler.mkdir @subfolder+'controllers'
+    # +models?
+    # console.info 'Moving over existing source files...'
+    # console.info 'Decompiling existing scripts...'
+    # console.info '??...'
+    # + lazyalloy generate controller/model/whatever
     console.debug 'Setup complete.'
 
   getFileType = (path) ->

@@ -129,10 +129,10 @@ Application = (function() {
       this.subfolder += '/';
     }
     console.info('Setting up folder structure...');
-    this.compiler.mkdirSync(this.subfolder);
-    this.compiler.mkdirSync(this.subfolder + 'views');
-    this.compiler.mkdirSync(this.subfolder + 'styles');
-    this.compiler.mkdirSync(this.subfolder + 'controllers');
+    this.compiler.mkdir(this.subfolder);
+    this.compiler.mkdir(this.subfolder + 'views');
+    this.compiler.mkdir(this.subfolder + 'styles');
+    this.compiler.mkdir(this.subfolder + 'controllers');
     return console.debug('Setup complete.');
   };
 
