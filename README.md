@@ -25,9 +25,9 @@ Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but event
 
 1. `npm install -g lazy-alloy`
 2. Navigate to project root folder
-3. `lazyalloy --setup`
+3. `lazyalloy new`
 4. Write CoffeeScript / Jade in `src/**/`
-5. `lazyalloy -w -p ios`
+5. `lazyalloy watch -p ios`
 
 ### Good to know
 the styles files needs to begin with `somevariable =` like so (for the compilation to work):
