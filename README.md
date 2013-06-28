@@ -37,11 +37,22 @@ the styles files needs to begin with `somevariable =` like so (for the compilati
       backgroundColor: '#fff'
 
 ###Options
-    -s, --setup                Setup lazy-alloy directory structure
-    -c, --compile              Just compile.
-    -w, --watch                Watch file changes & compile.
-    -p, --platform [platform]  Run titanium on `platform`
-    -d, --directory [dirname]  Change location to look for source files (default `src/`)
+    Usage: lazyalloy [COMMAND] [OPTIONS]
+
+    Commands:
+
+      compile                Just compile.
+      watch                  Watch file changes & compile.
+      build <platform>       Run titanium on `platform`
+      new                    Setup the lazy-alloy directory structure.
+      generate <type> <name> Generate a new (lazy-)alloy type such as a controller.
+
+    Options:
+
+      -h, --help                 output usage information
+      -V, --version              output the version number
+      -p, --platform [platform]  (watch) When done, run titanium on `platform`
+      -d, --directory [dirname]  Set source directory (default `src/`)
 
 
 ![AFRICA!](http://24.media.tumblr.com/60efb9b1b8da24b3250c1ab21232c2b8/tumblr_mhtwirmVV51r8sj1to1_500.jpg)

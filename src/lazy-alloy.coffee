@@ -4,6 +4,7 @@ match = require("match-files")
 coffee = require("coffee-script")
 jade = require("jade")
 sty = require('sty')
+app = null
 
 directory = process.cwd()
 
@@ -17,38 +18,67 @@ console.debug = (msg) ->
 
 class Application
   constructor: ->
+    app = this
     @program = require('commander')
     @titanium = null
 
     @program
-      .version('0.0.2')
-      .option('-s, --setup', 'Setup lazy-alloy directory structure.')
-      .option('-c, --compile', 'Just compile.')
-      .option('-w, --watch', 'Watch file changes & compile.')
-      .option('-p, --platform [platform]', 'Run titanium on `platform`')
+      .version('0.0.4')
+      .usage('[COMMAND] [OPTIONS]')
+      #.option('-s, --setup', 'Setup lazy-alloy directory structure.')
+      # .option('-c, --compile', 'Just compile.')
+      # .option('-w, --watch', 'Watch file changes & compile.')
+      .option('-p, --platform [platform]', '(watch) When done, run titanium on `platform`')
       .option('-d, --directory [dirname]', 'Set source directory (default `src/`)')
-      .parse(process.argv)
 
-    @subfolder = @program.directory or 'src/'
+    @program.command('compile')
+      .description('Just compile.')
+      .action(@compile)
+
+    @program.command('watch')
+      .description('Watch file changes & compile.')
+      .action(@watch)
+
+    @program.command('build <platform>')
+      .description('Run titanium on `platform`')
+      .action(@build)
+
+    @program.command('new')
+      .description('Setup the lazy-alloy directory structure.')
+      .action(@setup)
+
+    @program.command('generate [type] [name]')
+      .description('Generate a new (lazy-)alloy type such as a controller.')
+      .action(@generate)
+
+    @program.parse(process.argv)
+
+  # start: ->
+  #   return @compile() if @program.compile
+  #   return @watch() if @program.watch
+  #   return @build() if @program.platform
+
+  #   console.info "nothing to do!"
+
+  start: ->
+    @subfolder = if @program.directory
+      @program.directory += '/' unless @program.directory.charAt(subfolder.length-1) == '/'
+    else
+     'src/'
     @compiler = new Compiler(@subfolder)
 
-    return @setup() if @program.setup
-    return @compile() if @program.compile
-    return @watch() if @program.watch
-    return @build() if @program.platform
-
-    console.info "nothing to do!"
-
   compile: ->
-    @compiler.all()
+    app.start()
+    app.compiler.all()
 
-  build: ->
+  build: (platform = app.program.platform) ->
+    app.start()
     spawn = require("child_process").spawn
     exec = require("child_process").exec
 
-    if @titanium isnt null
+    if app.titanium isnt null
       console.info "stopping titanium..."
-      @titanium.kill()
+      app.titanium.kill()
 
     alloy = exec "alloy compile", (error, stdout, stderr) ->
       console.debug stdout if stdout
@@ -60,7 +90,7 @@ class Application
       if code isnt 1
         console.info "starting titanium..."
 
-        @titanium = spawn "titanium", ["build", "-p", @program.platform]
+        @titanium = spawn "titanium", ["build", "-p", platform]
 
         @titanium.stdout.on "data", (data) ->
           console.log "titanium: " + data
@@ -72,6 +102,7 @@ class Application
           console.log "titanium exited with code " + code
 
   watch: ->
+    app.start()
     watchr = require("watchr")
 
     console.info "Waiting for file change..."
@@ -89,9 +120,9 @@ class Application
           file = getFileType filePath
           return unless file
 
-          @compiler.files [filePath], file.fromTo[0], file.fromTo[1]
+          app.compiler.files [filePath], file.fromTo[0], file.fromTo[1]
 
-          @build() if @program.platform
+          app.build() if app.program.platform
 
     next: (err, watchers) ->
       if err
@@ -100,13 +131,32 @@ class Application
         console.debug "Waiting for file change..."
 
   setup: ->
-    @subfolder += '/' unless @subfolder.charAt(@subfolder.length-1) == '/'
-    console.info 'Setting up folder structure...'
-    @compiler.mkdirSync @subfolder
-    @compiler.mkdirSync @subfolder+'views'
-    @compiler.mkdirSync @subfolder+'styles'
-    @compiler.mkdirSync @subfolder+'controllers'
-    console.debug 'Setup complete.'
+    app.start()
+    new Generator().setup app.subfolder
+
+  generate: (type, name) ->
+    app.start()
+    app.type = type
+    app.name = name
+    app.ensureType()
+
+  ensureType: ->
+    if app.type
+      app.ensureName()
+    else
+      console.debug 'What should I generate?'
+      app.program.choose ['controller', 'view'], app.ensureName
+
+  ensureName: (i, type) ->
+    app.type = type if type
+    if app.name # might not be needed for all future generators
+      app.startGenerator()
+    else
+      app.program.prompt "Please enter a name for your #{app.type}: ", app.startGenerator
+
+  startGenerator: (name) ->
+    app.name = name if name
+    new Generator().generate app.type, app.name
 
   getFileType = (path) ->
     #check if file path contains string
@@ -164,9 +214,6 @@ class Compiler
 
       @file file, output, to
 
-  mkdir: (path) ->
-    if fs.existsSync(path) then console.debug("#{path} already exists, doing nothing") else fs.mkdirSync path
-
   build:
     xml: (data) ->
       jade.compile(data,
@@ -186,5 +233,60 @@ class Compiler
     js: (data) ->
       coffee.compile data.toString(), {bare: true}
 
+class Generator
+  setup: (subfolder) ->
+    console.info 'Setting up folder structure...'
+    mkdir subfolder
+    mkdir subfolder+'views'
+    mkdir subfolder+'styles'
+    mkdir subfolder+'controllers'
+    console.debug 'Setup complete.'
+    process.exit()
+
+  generate: (type, name) ->
+    switch type
+      when 'controller'
+        createController name
+      when 'jmk'
+        not_yet_implemented()
+      when 'model'
+        not_yet_implemented()
+      when 'migration'
+        not_yet_implemented()
+      when 'view'
+        createView name
+      when 'widget'
+        not_yet_implemented()
+      else
+        console.info "Don't know how to build #{type}"
+    process.exit()
+
+  createController = (name) ->
+    console.debug "Creating controller #{name}"
+    touch app.subfolder + 'controllers/' + name + '.coffee'
+    createView name
+
+  createView = (name) ->
+    console.debug "Building view #{name}"
+    touch app.subfolder + 'views/' + name + '.jade'
+    createStyle name
+
+  createStyle = (name) ->
+    console.debug "Building style #{name}"
+    touch app.subfolder + 'styles/' + name + '.coffee'
+
+  not_yet_implemented = ->
+    console.info "This generator hasn't been built into lazy-alloy yet. Please help us out by building it in:"
+    console.info "https://github.com/vastness/lazy-alloy"
+
+  mkdir = (path) ->
+    execUnlessExists fs.mkdirSync, path
+  touch = (path) ->
+    execUnlessExists fs.openSync, path, 'w'
+  execUnlessExists = (func, path, attr = null) ->
+    if fs.existsSync(path)
+      console.debug("#{path} already exists, doing nothing")
+    else
+      func path, attr
 
 module.exports = new Application

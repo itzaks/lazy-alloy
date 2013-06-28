@@ -1,6 +1,6 @@
 {
   "name": "lazy-alloy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Write Alloy apps in coffee-script, jade and coffee-css",
   "main": "lazyalloy.coffee",
   "scripts": {
