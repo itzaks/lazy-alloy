@@ -37,7 +37,7 @@ the styles files needs to begin with `somevariable =` like so (for the compilati
       backgroundColor: '#fff'
 
 ###Options
-    Usage: lazy-alloy [COMMAND] [OPTIONS]
+    Usage: lazyalloy [COMMAND] [OPTIONS]
 
     Commands:
 
@@ -45,7 +45,7 @@ the styles files needs to begin with `somevariable =` like so (for the compilati
       watch                  Watch file changes & compile.
       build <platform>       Run titanium on `platform`
       new                    Setup the lazy-alloy directory structure.
-      generate [type] [name] Generate a new (lazy-)alloy type such as a controller.
+      generate <type> <name> Generate a new (lazy-)alloy type such as a controller.
 
     Options:
 
