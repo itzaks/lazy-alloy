@@ -108,6 +108,7 @@ class Application
     console.info "Waiting for file change..."
 
     watchr.watch
+      ignoreHiddenFiles: true
       paths: [directory]
       listeners:
         error: (err) ->
@@ -193,7 +194,9 @@ class Compiler
     path = @subfolder + path
     @logger.info "Preprocessing #{ from } files in #{ path }"
 
-    filter = (dir) -> dir.indexOf(".#{ from }") isnt -1
+    filter = (dir) ->
+      # It should contain the expected extension but not a hidden file (starting with a dot)
+      dir.indexOf(".#{ from }") isnt -1 and dir.indexOf(".") isnt 0
 
     match.find (process.cwd() + "/" + path), {fileFilters: [filter]}, (err, files) => @files files, from, to
 
