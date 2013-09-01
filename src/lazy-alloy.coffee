@@ -146,7 +146,7 @@ class Application
       app.ensureName()
     else
       console.debug 'What should I generate?'
-      app.program.choose ['controller', 'view'], app.ensureName
+      app.program.choose ['controller', 'view', 'model', 'widget'], app.ensureName
 
   ensureName: (i, type) ->
     app.type = type if type
@@ -174,6 +174,7 @@ class Application
     return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
     return {type: "widgets/style", fromTo: ["coffee", "tss"]} if inpath "widgets/style"
     return {type: "widgets/controller", fromTo: ["coffee", "js"]} if inpath "widgets/controller"
+    return {type: "model", fromTo: ["coffee", "js"]} if inpath "models/"
 
 class Compiler
   logger: console
@@ -195,12 +196,15 @@ class Compiler
       @process "widgets/#{widget}/views/", "jade", "xml"
       @process "widgets/#{widget}/styles/", "coffee", "tss"
       @process "widgets/#{widget}/controllers/", "coffee", "js"
+  models: ->
+    @process "models/", "coffee", "js"
 
   all: ->
     @views()
     @controllers()
     @styles()
     @widgets()
+    @models()
 
   process: (path, from, to) ->
     path = @subfolder + path
@@ -275,6 +279,7 @@ class Generator
     mkdir subfolder+'styles'
     mkdir subfolder+'controllers'
     mkdir subfolder+'widgets'
+    mkdir subfolder+'models'
     console.debug 'Setup complete.'
     process.exit()
 
@@ -282,6 +287,8 @@ class Generator
     switch type
       when 'controller'
         createController name
+      when 'model'
+        createModel name
       when 'jmk'
         not_yet_implemented()
       when 'model'
@@ -320,6 +327,10 @@ class Generator
     touch app.subfolder + 'widgets/' + name + '/controllers/widget.coffee'
     touch app.subfolder + 'widgets/' + name + '/views/widget.jade'
     touch app.subfolder + 'widgets/' + name + '/styles/widget.coffee'
+  createModel = (name) ->
+    console.debug "Creating model #{name}"
+    touch app.subfolder + 'models/' + name + '.coffee'
+    createView name
 
   not_yet_implemented = ->
     console.info "This generator hasn't been built into lazy-alloy yet. Please help us out by building it in:"

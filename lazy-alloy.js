@@ -147,7 +147,7 @@ Application = (function() {
       return app.ensureName();
     } else {
       console.debug('What should I generate?');
-      return app.program.choose(['controller', 'view'], app.ensureName);
+      return app.program.choose(['controller', 'view', 'model', 'widget'], app.ensureName);
     }
   };
 
@@ -219,6 +219,12 @@ Application = (function() {
         fromTo: ["coffee", "js"]
       };
     }
+    if (inpath("models/")) {
+      return {
+        type: "model",
+        fromTo: ["coffee", "js"]
+      };
+    }
   };
 
   return Application;
@@ -258,11 +264,16 @@ Compiler = (function() {
     return _results;
   };
 
+  Compiler.prototype.models = function() {
+    return this.process("models/", "coffee", "js");
+  };
+
   Compiler.prototype.all = function() {
     this.views();
     this.controllers();
     this.styles();
-    return this.widgets();
+    this.widgets();
+    return this.models();
   };
 
   Compiler.prototype.process = function(path, from, to) {
@@ -350,7 +361,7 @@ Compiler = (function() {
 })();
 
 Generator = (function() {
-  var createController, createStyle, createView, createWidget, execUnlessExists, mkdir, not_yet_implemented, touch;
+  var createController, createModel, createStyle, createView, createWidget, execUnlessExists, mkdir, not_yet_implemented, touch;
 
   function Generator() {}
 
@@ -361,6 +372,7 @@ Generator = (function() {
     mkdir(subfolder + 'styles');
     mkdir(subfolder + 'controllers');
     mkdir(subfolder + 'widgets');
+    mkdir(subfolder + 'models');
     console.debug('Setup complete.');
     return process.exit();
   };
@@ -369,6 +381,9 @@ Generator = (function() {
     switch (type) {
       case 'controller':
         createController(name);
+        break;
+      case 'model':
+        createModel(name);
         break;
       case 'jmk':
         not_yet_implemented();
@@ -418,6 +433,12 @@ Generator = (function() {
     touch(app.subfolder + 'widgets/' + name + '/controllers/widget.coffee');
     touch(app.subfolder + 'widgets/' + name + '/views/widget.jade');
     return touch(app.subfolder + 'widgets/' + name + '/styles/widget.coffee');
+  };
+
+  createModel = function(name) {
+    console.debug("Creating model " + name);
+    touch(app.subfolder + 'models/' + name + '.coffee');
+    return createView(name);
   };
 
   not_yet_implemented = function() {
