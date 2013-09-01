@@ -146,7 +146,7 @@ class Application
       app.ensureName()
     else
       console.debug 'What should I generate?'
-      app.program.choose ['controller', 'view'], app.ensureName
+      app.program.choose ['controller', 'view', 'model', 'widget'], app.ensureName
 
   ensureName: (i, type) ->
     app.type = type if type
@@ -215,10 +215,18 @@ class Compiler
     @logger.debug "Building #{type}: #{from} --> #{output}"
     data = fs.readFileSync from, 'utf8'
     compiled = @build[type] data
+    # Create the base path
+    @mkdirPSync output.split('/')[0...-1]
     fs.writeFileSync output, compiled, 'utf8'
 
   files: (files, from, to, to_path) ->
     return @logger.debug "No '*.#{from}' files need to preprocess.. #{files.length} files" if files.length is 0
+
+    # Create necessary directory in case it doesn't exist
+    paths = ['app', 'app/controllers', 'app/styles', 'app/views']
+    for path in paths
+      unless fs.existsSync path
+        fs.mkdirSync path
 
     for file in files
       break if !!~ file.indexOf "lazyalloy"
@@ -247,6 +255,23 @@ class Compiler
     js: (data) ->
       coffee.compile data.toString(), {bare: true}
 
+    json: (data) ->
+      data
+
+  # The equivalent of running `mkdir -p <path>` on the command line
+  mkdirPSync: (segments, pos=0) ->
+    return if pos >= segments.length
+    # Construct path at current segment
+    segment = segments[pos]
+    path = segments[0..pos].join '/'
+
+    # Create path if it doesn't exist
+    if path.length > 0
+      unless fs.existsSync path
+        fs.mkdirSync path
+    # Go deeper
+    @mkdirPSync segments, pos + 1
+
 class Generator
   setup: (subfolder) ->
     console.info "Setting up folder structure at #{subfolder}"
@@ -262,6 +287,8 @@ class Generator
     switch type
       when 'controller'
         createController name
+      when 'model'
+        createModel name
       when 'jmk'
         not_yet_implemented()
       when 'model'
