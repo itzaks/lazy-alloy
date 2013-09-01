@@ -165,12 +165,15 @@ class Application
       !!~ path.indexOf name
 
     return {type: "view", fromTo: ["jade", "xml"]} if inpath ".jade"
+    return {type: "widgets/view", fromTo: ["jade", "xml"]} if inpath "widgets/view"
 
     return null unless inpath ".coffee"
 
     return {type: "style", fromTo: ["coffee", "tss"]} if inpath "styles/"
     return {type: "alloy", fromTo: ["coffee", "js"]} if inpath "alloy.coffee"
     return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
+    return {type: "widgets/style", fromTo: ["coffee", "tss"]} if inpath "widgets/style"
+    return {type: "widgets/controller", fromTo: ["coffee", "js"]} if inpath "widgets/controller"
 
 class Compiler
   logger: console
@@ -185,10 +188,18 @@ class Compiler
   styles: ->
     @process "styles/", "coffee", "tss"
 
+  widgets: ->
+    widgets = fs.readdirSync "#{@subfolder}/widgets"
+    for widget in widgets
+      @process "widgets/#{widget}/views/", "jade", "xml"
+      @process "widgets/#{widget}/styles/", "coffee", "tss"
+      @process "widgets/#{widget}/controllers/", "coffee", "js"
+
   all: ->
     @views()
     @controllers()
     @styles()
+    @widgets()
 
   process: (path, from, to) ->
     path = @subfolder + path
@@ -238,11 +249,12 @@ class Compiler
 
 class Generator
   setup: (subfolder) ->
-    console.info 'Setting up folder structure...'
+    console.info "Setting up folder structure at #{subfolder}"
     mkdir subfolder
     mkdir subfolder+'views'
     mkdir subfolder+'styles'
     mkdir subfolder+'controllers'
+    mkdir subfolder+'widgets'
     console.debug 'Setup complete.'
     process.exit()
 
@@ -259,7 +271,7 @@ class Generator
       when 'view'
         createView name
       when 'widget'
-        not_yet_implemented()
+        createWidget name
       else
         console.info "Don't know how to build #{type}"
     process.exit()
@@ -277,6 +289,17 @@ class Generator
   createStyle = (name) ->
     console.debug "Building style #{name}"
     touch app.subfolder + 'styles/' + name + '.coffee'
+
+  createWidget = (name) ->
+    console.debug "Creating widget #{name}"
+    mkdir app.subfolder + 'widgets/'
+    mkdir app.subfolder + 'widgets/' + name
+    mkdir app.subfolder + 'widgets/' + name + '/controllers/'
+    mkdir app.subfolder + 'widgets/' + name + '/views/'
+    mkdir app.subfolder + 'widgets/' + name + '/styles/'
+    touch app.subfolder + 'widgets/' + name + '/controllers/widget.coffee'
+    touch app.subfolder + 'widgets/' + name + '/views/widget.jade'
+    touch app.subfolder + 'widgets/' + name + '/styles/widget.coffee'
 
   not_yet_implemented = ->
     console.info "This generator hasn't been built into lazy-alloy yet. Please help us out by building it in:"

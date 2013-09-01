@@ -180,6 +180,12 @@ Application = (function() {
         fromTo: ["jade", "xml"]
       };
     }
+    if (inpath("widgets/view")) {
+      return {
+        type: "widgets/view",
+        fromTo: ["jade", "xml"]
+      };
+    }
     if (!inpath(".coffee")) {
       return null;
     }
@@ -198,6 +204,18 @@ Application = (function() {
     if (inpath("controllers/")) {
       return {
         type: "controller",
+        fromTo: ["coffee", "js"]
+      };
+    }
+    if (inpath("widgets/style")) {
+      return {
+        type: "widgets/style",
+        fromTo: ["coffee", "tss"]
+      };
+    }
+    if (inpath("widgets/controller")) {
+      return {
+        type: "widgets/controller",
         fromTo: ["coffee", "js"]
       };
     }
@@ -226,10 +244,27 @@ Compiler = (function() {
     return this.process("styles/", "coffee", "tss");
   };
 
+  Compiler.prototype.widgets = function() {
+    var widget, widgets, _i, _len, _results;
+    console.log('*** widgets');
+    console.log(this.subfolder);
+    widgets = fs.readdirSync("" + this.subfolder + "/widgets");
+    console.log(widgets);
+    _results = [];
+    for (_i = 0, _len = widgets.length; _i < _len; _i++) {
+      widget = widgets[_i];
+      this.process("widgets/" + widget + "/views/", "jade", "xml");
+      this.process("widgets/" + widget + "/styles/", "coffee", "tss");
+      _results.push(this.process("widgets/" + widget + "/controllers/", "coffee", "js"));
+    }
+    return _results;
+  };
+
   Compiler.prototype.all = function() {
     this.views();
     this.controllers();
-    return this.styles();
+    this.styles();
+    return this.widgets();
   };
 
   Compiler.prototype.process = function(path, from, to) {
@@ -243,6 +278,10 @@ Compiler = (function() {
     return match.find(process.cwd() + "/" + path, {
       fileFilters: [filter]
     }, function(err, files) {
+      console.log('*** AAA');
+      console.log(files);
+      console.log(from);
+      console.log(to);
       return _this.files(files, from, to);
     });
   };
@@ -295,16 +334,17 @@ Compiler = (function() {
 })();
 
 Generator = (function() {
-  var createController, createStyle, createView, execUnlessExists, mkdir, not_yet_implemented, touch;
+  var createController, createStyle, createView, createWidget, execUnlessExists, mkdir, not_yet_implemented, touch;
 
   function Generator() {}
 
   Generator.prototype.setup = function(subfolder) {
-    console.info('Setting up folder structure...');
+    console.info("Setting up folder structure at " + subfolder);
     mkdir(subfolder);
     mkdir(subfolder + 'views');
     mkdir(subfolder + 'styles');
     mkdir(subfolder + 'controllers');
+    mkdir(subfolder + 'widgets');
     console.debug('Setup complete.');
     return process.exit();
   };
@@ -327,7 +367,7 @@ Generator = (function() {
         createView(name);
         break;
       case 'widget':
-        not_yet_implemented();
+        createWidget(name);
         break;
       default:
         console.info("Don't know how to build " + type);
@@ -350,6 +390,18 @@ Generator = (function() {
   createStyle = function(name) {
     console.debug("Building style " + name);
     return touch(app.subfolder + 'styles/' + name + '.coffee');
+  };
+
+  createWidget = function(name) {
+    console.debug("Creating widget " + name);
+    mkdir(app.subfolder + 'widgets/');
+    mkdir(app.subfolder + 'widgets/' + name);
+    mkdir(app.subfolder + 'widgets/' + name + '/controllers/');
+    mkdir(app.subfolder + 'widgets/' + name + '/views/');
+    mkdir(app.subfolder + 'widgets/' + name + '/styles/');
+    touch(app.subfolder + 'widgets/' + name + '/controllers/widget.coffee');
+    touch(app.subfolder + 'widgets/' + name + '/views/widget.jade');
+    return touch(app.subfolder + 'widgets/' + name + '/styles/widget.coffee');
   };
 
   not_yet_implemented = function() {
