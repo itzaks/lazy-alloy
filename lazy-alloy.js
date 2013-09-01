@@ -147,7 +147,7 @@ Application = (function() {
       return app.ensureName();
     } else {
       console.debug('What should I generate?');
-      return app.program.choose(['controller', 'view'], app.ensureName);
+      return app.program.choose(['controller', 'view', 'model'], app.ensureName);
     }
   };
 
@@ -201,6 +201,12 @@ Application = (function() {
         fromTo: ["coffee", "js"]
       };
     }
+    if (inpath("models/")) {
+      return {
+        type: "model",
+        fromTo: ["coffee", "js"]
+      };
+    }
   };
 
   return Application;
@@ -226,10 +232,15 @@ Compiler = (function() {
     return this.process("styles/", "coffee", "tss");
   };
 
+  Compiler.prototype.models = function() {
+    return this.process("models/", "coffee", "js");
+  };
+
   Compiler.prototype.all = function() {
     this.views();
     this.controllers();
-    return this.styles();
+    this.styles();
+    return this.models();
   };
 
   Compiler.prototype.process = function(path, from, to) {
@@ -295,7 +306,7 @@ Compiler = (function() {
 })();
 
 Generator = (function() {
-  var createController, createStyle, createView, execUnlessExists, mkdir, not_yet_implemented, touch;
+  var createController, createModel, createStyle, createView, execUnlessExists, mkdir, not_yet_implemented, touch;
 
   function Generator() {}
 
@@ -305,6 +316,7 @@ Generator = (function() {
     mkdir(subfolder + 'views');
     mkdir(subfolder + 'styles');
     mkdir(subfolder + 'controllers');
+    mkdir(subfolder + 'models');
     console.debug('Setup complete.');
     return process.exit();
   };
@@ -313,6 +325,9 @@ Generator = (function() {
     switch (type) {
       case 'controller':
         createController(name);
+        break;
+      case 'model':
+        createModel(name);
         break;
       case 'jmk':
         not_yet_implemented();
@@ -350,6 +365,12 @@ Generator = (function() {
   createStyle = function(name) {
     console.debug("Building style " + name);
     return touch(app.subfolder + 'styles/' + name + '.coffee');
+  };
+
+  createModel = function(name) {
+    console.debug("Creating model " + name);
+    touch(app.subfolder + 'models/' + name + '.coffee');
+    return createView(name);
   };
 
   not_yet_implemented = function() {
