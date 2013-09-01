@@ -191,6 +191,7 @@ class Compiler
   widgets: ->
     widgets = fs.readdirSync "#{@subfolder}/widgets"
     for widget in widgets
+      @process "widgets/#{widget}/", "json", "json"
       @process "widgets/#{widget}/views/", "jade", "xml"
       @process "widgets/#{widget}/styles/", "coffee", "tss"
       @process "widgets/#{widget}/controllers/", "coffee", "js"
@@ -215,6 +216,8 @@ class Compiler
     @logger.debug "Building #{type}: #{from} --> #{output}"
     data = fs.readFileSync from, 'utf8'
     compiled = @build[type] data
+    # Create the base path
+    @mkdirPSync output.split('/')[0...-1]
     fs.writeFileSync output, compiled, 'utf8'
 
   files: (files, from, to, to_path) ->
@@ -246,6 +249,23 @@ class Compiler
 
     js: (data) ->
       coffee.compile data.toString(), {bare: true}
+
+    json: (data) ->
+      data
+
+  # The equivalent of running `mkdir -p <path>` on the command line
+  mkdirPSync: (segments, pos=0) ->
+    return if pos >= segments.length
+    # Construct path at current segment
+    segment = segments[pos]
+    path = segments[0..pos].join '/'
+
+    # Create path if it doesn't exist
+    if path.length > 0
+      unless fs.existsSync path
+        fs.mkdirSync path
+    # Go deeper
+    @mkdirPSync segments, pos + 1
 
 class Generator
   setup: (subfolder) ->

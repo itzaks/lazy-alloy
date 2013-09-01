@@ -246,13 +246,11 @@ Compiler = (function() {
 
   Compiler.prototype.widgets = function() {
     var widget, widgets, _i, _len, _results;
-    console.log('*** widgets');
-    console.log(this.subfolder);
     widgets = fs.readdirSync("" + this.subfolder + "/widgets");
-    console.log(widgets);
     _results = [];
     for (_i = 0, _len = widgets.length; _i < _len; _i++) {
       widget = widgets[_i];
+      this.process("widgets/" + widget + "/", "json", "json");
       this.process("widgets/" + widget + "/views/", "jade", "xml");
       this.process("widgets/" + widget + "/styles/", "coffee", "tss");
       _results.push(this.process("widgets/" + widget + "/controllers/", "coffee", "js"));
@@ -278,10 +276,6 @@ Compiler = (function() {
     return match.find(process.cwd() + "/" + path, {
       fileFilters: [filter]
     }, function(err, files) {
-      console.log('*** AAA');
-      console.log(files);
-      console.log(from);
-      console.log(to);
       return _this.files(files, from, to);
     });
   };
@@ -291,6 +285,7 @@ Compiler = (function() {
     this.logger.debug("Building " + type + ": " + from + " --> " + output);
     data = fs.readFileSync(from, 'utf8');
     compiled = this.build[type](data);
+    this.mkdirPSync(output.split('/').slice(0, -1));
     return fs.writeFileSync(output, compiled, 'utf8');
   };
 
@@ -326,7 +321,28 @@ Compiler = (function() {
       return coffee.compile(data.toString(), {
         bare: true
       });
+    },
+    json: function(data) {
+      return data;
     }
+  };
+
+  Compiler.prototype.mkdirPSync = function(segments, pos) {
+    var segment;
+    if (pos == null) {
+      pos = 0;
+    }
+    if (pos >= segments.length) {
+      return;
+    }
+    segment = segments[pos];
+    path = segments.slice(0, +pos + 1 || 9e9).join('/');
+    if (path.length > 0) {
+      if (!fs.existsSync(path)) {
+        fs.mkdirSync(path);
+      }
+    }
+    return this.mkdirPSync(segments, pos + 1);
   };
 
   return Compiler;
