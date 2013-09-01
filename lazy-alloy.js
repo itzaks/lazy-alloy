@@ -256,13 +256,20 @@ Compiler = (function() {
   };
 
   Compiler.prototype.files = function(files, from, to, to_path) {
-    var file, output, _i, _len, _results;
+    var file, output, paths, _i, _j, _len, _len1, _results;
     if (files.length === 0) {
       return this.logger.debug("No '*." + from + "' files need to preprocess.. " + files.length + " files");
     }
+    paths = ['app', 'app/controllers', 'app/styles', 'app/views'];
+    for (_i = 0, _len = paths.length; _i < _len; _i++) {
+      path = paths[_i];
+      if (!fs.existsSync(path)) {
+        fs.mkdirSync(path);
+      }
+    }
     _results = [];
-    for (_i = 0, _len = files.length; _i < _len; _i++) {
-      file = files[_i];
+    for (_j = 0, _len1 = files.length; _j < _len1; _j++) {
+      file = files[_j];
       if (!!~file.indexOf("lazyalloy")) {
         break;
       }

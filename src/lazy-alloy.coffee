@@ -209,6 +209,12 @@ class Compiler
   files: (files, from, to, to_path) ->
     return @logger.debug "No '*.#{from}' files need to preprocess.. #{files.length} files" if files.length is 0
 
+    # Create necessary directory in case it doesn't exist
+    paths = ['app', 'app/controllers', 'app/styles', 'app/views']
+    for path in paths
+      unless fs.existsSync path
+        fs.mkdirSync path
+
     for file in files
       break if !!~ file.indexOf "lazyalloy"
 
