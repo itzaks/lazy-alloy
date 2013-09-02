@@ -8,6 +8,11 @@ lazy-alloy
 * compile all `*.coffee` scripts to corresponding `js` files in `src/controllers/` to `app/controllers/`.
 * compile all `*.coffee` jsons to corresponding `tss` files in `src/styles/` to `app/styles/`.
 * compile all `*.jade` templates to corresponding `xml` files in `src/views/` to `app/views/`.
+* compile all `*.coffee` scripts to corresponding `js` files in `src/models/` to `app/models/`.
+* compile widgets in `src/widgets` stored in the following directories:
+  * compile all `*.coffee` scripts to corresponding `js` files in `src/widgets/<widgetName>/controllers` to `app/widgets/<widgetName>/controllers`.
+  * compile all `*.coffee` jsons to corresponding `tss` files in `src/widgets/<widgetName>/styles` to `app/widgets/<widgetName>/styles`.
+  * compile all `*.jade` templates to corresponding `xml` files in `src/widgets/<widgetName>/views` to `app/widgets/<widgetName>/views`.
 
 Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but eventually grew out of its box. The code is lazy but does its job, feel free to improve.
 
