@@ -1,0 +1,6 @@
+
+<Alloy>
+  <Window class="container">
+    <Label id="label" onClick="doClick">Hello, W0rld!</Label>
+  </Window>
+</Alloy>

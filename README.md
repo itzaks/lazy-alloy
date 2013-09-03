@@ -3,18 +3,26 @@ lazy-alloy
 
 `lazy-alloy` is a CoffeeScript & Jade preprocessor for [Titanium Alloy Framework](http://projects.appcelerator.com/alloy/docs/Alloy-bootstrap/index.html).
 
-`lazy-alloy` will
+##What does it do?
 
-* compile all `*.coffee` scripts to corresponding `js` files in `src/controllers/` to `app/controllers/`.
-* compile all `*.coffee` jsons to corresponding `tss` files in `src/styles/` to `app/styles/`.
-* compile all `*.jade` templates to corresponding `xml` files in `src/views/` to `app/views/`.
-* compile all `*.coffee` scripts to corresponding `js` files in `src/models/` to `app/models/`.
-* compile widgets in `src/widgets` stored in the following directories:
-  * compile all `*.coffee` scripts to corresponding `js` files in `src/widgets/<widgetName>/controllers` to `app/widgets/<widgetName>/controllers`.
-  * compile all `*.coffee` jsons to corresponding `tss` files in `src/widgets/<widgetName>/styles` to `app/widgets/<widgetName>/styles`.
-  * compile all `*.jade` templates to corresponding `xml` files in `src/widgets/<widgetName>/views` to `app/widgets/<widgetName>/views`.
+It makes you write a tiny bit less code. Perhaps also a bit more readable (¿¿¿) code as well.
 
-Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but eventually grew out of its box. The code is lazy but does its job, feel free to improve.
+Compile from sourcefile | To alloy readable output
+------------ | -------------
+`src/controllers/{{name}}.coffee` | `app/controllers/{{name}}.js`
+`src/styles/{{name}}.coffee` | `app/styles/{{name}}.tss`
+`src/views/{{name}}.jade` | `app/views/{{name}}.xml`
+`src/models/{{name}}.coffee` | `app/models/{{name}}.js`
+
+Also, it will compile your widgets from src/widgets stored in the following directories.
+
+From | To 
+------------ | -------------
+`src/widgets/{{widget-name}}/controllers/` *.coffee | `app/widgets/{{widget-name}}/controllers/` *.js
+`src/widgets/{{widget-name}}/styles/` *.coffee | `app/widgets/{{widget-name}}/styles/` *.tss
+`src/widgets/{{widget-name}}/views/` *.jade | `app/widgets/{{widget-name}}/views/` *.xml
+
+Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but eventually grew out of its box. Feel free to improve.
 
 
 ## Usage
@@ -26,20 +34,35 @@ Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but event
 * alloy
 * brain *(optional)*
 
-### ???¿¿¿
+### Installation
+1. Install [Titanium Alloy Framework](http://projects.appcelerator.com/alloy/docs/Alloy-bootstrap/index.html).
+2. `npm install -g lazy-alloy`
 
-1. `npm install -g lazy-alloy`
-2. Navigate to project root folder
-3. `lazyalloy new`
-4. Write CoffeeScript / Jade in `src/**/`
-5. `lazyalloy watch -p ios`
-
-### Good to know
-the styles files needs to begin with `somevariable =` like so (for the compilation to work):
+### Note regarding the \*.coffee –> \*.tss conversion
+The files need to be valid coffee-script objects; thus the first line of these files needs to be a variable assignment like the following
 
     tss =
-      width: "50%"
-      backgroundColor: '#fff'
+	  ".container":
+	    backgroundColor: "red"
+
+	  "Label":
+		width: Ti.UI.SIZE
+		height: Ti.UI.SIZE
+		color: "#fff"
+
+      
+Its output will look like this:
+
+    ".container": {
+      backgroundColor: "red"
+    },
+    "Label": {
+      width: Ti.UI.SIZE,
+      height: Ti.UI.SIZE,
+      color: "#fff"
+    }
+
+Perhaps something like *stylus* would be a better fit for this kind of job. Feel free to help us improve this section!
 
 ###Options
     Usage: lazyalloy [COMMAND] [OPTIONS]
@@ -58,6 +81,7 @@ the styles files needs to begin with `somevariable =` like so (for the compilati
       -V, --version              output the version number
       -p, --platform [platform]  (watch) When done, run titanium on `platform`
       -d, --directory [dirname]  Set source directory (default `src/`)
+     	
 
 
 ![AFRICA!](http://24.media.tumblr.com/60efb9b1b8da24b3250c1ab21232c2b8/tumblr_mhtwirmVV51r8sj1to1_500.jpg)
