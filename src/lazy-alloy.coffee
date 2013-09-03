@@ -292,7 +292,7 @@ class Generator
       when 'jmk'
         not_yet_implemented()
       when 'model'
-        not_yet_implemented()
+        createModel name
       when 'migration'
         not_yet_implemented()
       when 'view'
@@ -316,6 +316,10 @@ class Generator
   createStyle = (name) ->
     console.debug "Building style #{name}"
     touch app.subfolder + 'styles/' + name + '.coffee'
+
+  createModel = (name) ->
+    console.debug "Building model #{name}"
+    touch app.subfolder + 'models/' + name + '.coffee'
 
   createWidget = (name) ->
     console.debug "Creating widget #{name}"
