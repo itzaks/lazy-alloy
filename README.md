@@ -18,9 +18,9 @@ Also, it will compile your widgets from src/widgets stored in the following dire
 
 From | To 
 ------------ | -------------
-`src/widgets/{{widget-name}}/controllers/` *.coffee | `app/widgets/{{widget-name}}/controllers/` *.js
-`src/widgets/{{widget-name}}/styles/` *.coffee | `app/widgets/{{widget-name}}/styles/` *.tss
-`src/widgets/{{widget-name}}/views/` *.jade | `app/widgets/{{widget-name}}/views/` *.xml
+`src/widgets/{{widget-name}}/controllers/*.coffee` | `app/widgets/{{widget-name}}/controllers/*.js` 
+`src/widgets/{{widget-name}}/styles/*.coffee` | `app/widgets/{{widget-name}}/styles/*.tss`
+`src/widgets/{{widget-name}}/views/*.jade` | `app/widgets/{{widget-name}}/views/*.xml` 
 
 Inspired by [coffee-alloy](https://github.com/brantyoung/coffee-alloy) but eventually grew out of its box. Feel free to improve.
 
