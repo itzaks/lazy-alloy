@@ -198,12 +198,16 @@ class Compiler
   lib: ->
     @process "lib/", "coffee", "js"
 
+  alloy: ->
+    @process "./", "coffee", "js"
+
   all: ->
     @views()
     @controllers()
     @styles()
     @widgets()
-    @lib
+    @lib()
+    @alloy()
 
   process: (path, from, to) ->
     path = @subfolder + path
