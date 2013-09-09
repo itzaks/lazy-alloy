@@ -13,6 +13,7 @@ Compile from sourcefile | To alloy readable output
 `src/styles/{{name}}.coffee` | `app/styles/{{name}}.tss`
 `src/views/{{name}}.jade` | `app/views/{{name}}.xml`
 `src/models/{{name}}.coffee` | `app/models/{{name}}.js`
+`src/lib/{{name}}.coffee` | `app/lib/{{name}}.js`
 
 Also, it will compile your widgets from src/widgets stored in the following directories.
 
