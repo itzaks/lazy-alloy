@@ -23,7 +23,7 @@ class Application
     @titanium = null
 
     @program
-      .version('0.0.4')
+      .version('0.0.5')
       .usage('[COMMAND] [OPTIONS]')
       #.option('-s, --setup', 'Setup lazy-alloy directory structure.')
       # .option('-c, --compile', 'Just compile.')
@@ -195,11 +195,19 @@ class Compiler
       @process "widgets/#{widget}/styles/", "coffee", "tss"
       @process "widgets/#{widget}/controllers/", "coffee", "js"
 
+  lib: ->
+    @process "lib/", "coffee", "js"
+
+  alloy: ->
+    @process "./", "coffee", "js"
+
   all: ->
     @views()
     @controllers()
     @styles()
     @widgets()
+    @lib()
+    @alloy()
 
   process: (path, from, to) ->
     path = @subfolder + path
@@ -223,7 +231,7 @@ class Compiler
     return @logger.debug "No '*.#{from}' files need to preprocess.. #{files.length} files" if files.length is 0
 
     # Create necessary directory in case it doesn't exist
-    paths = ['app', 'app/controllers', 'app/styles', 'app/views']
+    paths = ['app', 'app/controllers', 'app/styles', 'app/views', 'app/lib']
     for path in paths
       unless fs.existsSync path
         fs.mkdirSync path
@@ -280,6 +288,7 @@ class Generator
     mkdir subfolder+'styles'
     mkdir subfolder+'controllers'
     mkdir subfolder+'widgets'
+    mkdir subfolder+'lib'
     console.debug 'Setup complete.'
     process.exit()
 
@@ -299,6 +308,8 @@ class Generator
         createView name
       when 'widget'
         createWidget name
+      when 'lib'
+        createLibrary name
       else
         console.info "Don't know how to build #{type}"
     process.exit()
@@ -331,6 +342,10 @@ class Generator
     touch app.subfolder + 'widgets/' + name + '/controllers/widget.coffee'
     touch app.subfolder + 'widgets/' + name + '/views/widget.jade'
     touch app.subfolder + 'widgets/' + name + '/styles/widget.coffee'
+
+  createLibrary = (name) ->
+    console.debug "Creating library #{name}"
+    touch app.subfolder + 'lib/' + name + '.coffee'
 
   not_yet_implemented = ->
     console.info "This generator hasn't been built into lazy-alloy yet. Please help us out by building it in:"
