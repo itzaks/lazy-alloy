@@ -199,7 +199,7 @@ class Compiler
     @process "lib/", "coffee", "js"
 
   alloy: ->
-    @process "./", "coffee", "js"
+    @process "./alloy.coffee", "coffee", "js"
 
   all: ->
     @views()
