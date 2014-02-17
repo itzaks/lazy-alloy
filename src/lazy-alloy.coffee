@@ -172,6 +172,8 @@ class Application
     return {type: "style", fromTo: ["coffee", "tss"]} if inpath "styles/"
     return {type: "alloy", fromTo: ["coffee", "js"]} if inpath "alloy.coffee"
     return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
+    return {type: "model", fromTo: ["coffee", "js"]} if inpath "models/"
+    return {type: "library", fromTo: ["coffee", "js"]} if inpath "lib/"
     return {type: "widgets/style", fromTo: ["coffee", "tss"]} if inpath "widgets/style"
     return {type: "widgets/controller", fromTo: ["coffee", "js"]} if inpath "widgets/controller"
 
@@ -184,6 +186,9 @@ class Compiler
 
   controllers: ->
     @process "controllers/", "coffee", "js"
+
+  models: ->
+    @process "models/", "coffee", "js"
 
   styles: ->
     @process "styles/", "coffee", "tss"
