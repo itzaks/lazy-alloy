@@ -180,6 +180,8 @@ class Application
     return {type: "style", fromTo: ["coffee", "tss"]} if inpath "styles/"
     return {type: "alloy", fromTo: ["coffee", "js"]} if inpath "alloy.coffee"
     return {type: "controller", fromTo: ["coffee", "js"]} if inpath "controllers/"
+    return {type: "model", fromTo: ["coffee", "js"]} if inpath "models/"
+    return {type: "library", fromTo: ["coffee", "js"]} if inpath "lib/"
     return {type: "widgets/style", fromTo: ["coffee", "tss"]} if inpath "widgets/style"
     return {type: "widgets/controller", fromTo: ["coffee", "js"]} if inpath "widgets/controller"
 
@@ -192,6 +194,9 @@ class Compiler
 
   controllers: ->
     @process "controllers/", "coffee", "js"
+
+  models: ->
+    @process "models/", "coffee", "js"
 
   styles: ->
     @process "styles/", "coffee", "tss"
@@ -207,7 +212,7 @@ class Compiler
     @process "lib/", "coffee", "js"
 
   alloy: ->
-    @process "./", "coffee", "js"
+    @process "./alloy.coffee", "coffee", "js"
 
   all: ->
     @views()
@@ -248,6 +253,7 @@ class Compiler
       break if !!~ file.indexOf "lazyalloy"
 
       output = file.substring(0, file.length - from.length).toString() + to
+      output = output.replace(/\\/g, '/') if process.platform is 'win32'
       output = output.replace(new RegExp('(.*)'+@subfolder), '$1app/') # Replacing subfolder with app. Only last occurence in case it exists twice in the path.
 
       @file file, output, to

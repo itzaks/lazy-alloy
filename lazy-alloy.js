@@ -147,11 +147,13 @@ Application = (function() {
   };
 
   Application.prototype.ensureType = function() {
+    var generators;
     if (app.type) {
       return app.ensureName();
     } else {
+      generators = ['controller', 'view', 'model', 'widget'];
       console.debug('What should I generate?');
-      return app.program.choose(['controller', 'view', 'model', 'widget'], app.ensureName);
+      return promptly.choose(generators.join(', ') + ': ', generators, app.ensureName);
     }
   };
 
@@ -213,6 +215,18 @@ Application = (function() {
         fromTo: ["coffee", "js"]
       };
     }
+    if (inpath("models/")) {
+      return {
+        type: "model",
+        fromTo: ["coffee", "js"]
+      };
+    }
+    if (inpath("lib/")) {
+      return {
+        type: "library",
+        fromTo: ["coffee", "js"]
+      };
+    }
     if (inpath("widgets/style")) {
       return {
         type: "widgets/style",
@@ -246,6 +260,10 @@ Compiler = (function() {
     return this.process("controllers/", "coffee", "js");
   };
 
+  Compiler.prototype.models = function() {
+    return this.process("models/", "coffee", "js");
+  };
+
   Compiler.prototype.styles = function() {
     return this.process("styles/", "coffee", "tss");
   };
@@ -268,7 +286,7 @@ Compiler = (function() {
   };
 
   Compiler.prototype.alloy = function() {
-    return this.process("./", "coffee", "js");
+    return this.process("./alloy.coffee", "coffee", "js");
   };
 
   Compiler.prototype.all = function() {
@@ -324,6 +342,9 @@ Compiler = (function() {
         break;
       }
       output = file.substring(0, file.length - from.length).toString() + to;
+      if (process.platform === 'win32') {
+        output = output.replace(/\\/g, '/');
+      }
       output = output.replace(new RegExp('(.*)' + this.subfolder), '$1app/');
       _results.push(this.file(file, output, to));
     }
@@ -473,14 +494,14 @@ Generator = (function() {
     return execUnlessExists(fs.openSync, path, 'w');
   };
 
-  execUnlessExists = function(func, path, attr) {
+  execUnlessExists = function(fn, path, attr) {
     if (attr == null) {
       attr = null;
     }
     if (fs.existsSync(path)) {
       return console.debug("" + path + " already exists, doing nothing");
     } else {
-      return func(path, attr);
+      return fn(path, attr);
     }
   };
 
