@@ -1,6 +1,7 @@
 fs = require("fs")
 path = require("path")
 match = require("match-files")
+promptly = require("promptly")
 coffee = require("coffee-script")
 jade = require("jade")
 sty = require('sty')
@@ -150,15 +151,17 @@ class Application
     if app.type
       app.ensureName()
     else
+      generators = ['controller', 'view', 'model', 'widget']
       console.debug 'What should I generate?'
-      app.program.choose ['controller', 'view', 'model', 'widget'], app.ensureName
+      promptly.choose generators.join(', ') + ': ', generators, app.ensureName
 
   ensureName: (i, type) ->
     app.type = type if type
     if app.name # might not be needed for all future generators
       app.startGenerator()
     else
-      app.program.prompt "Please enter a name for your #{app.type}: ", app.startGenerator
+      promptly.prompt "Please enter a name for your #{app.type}: ", (err, name) ->
+        app.startGenerator(name)
 
   startGenerator: (name) ->
     app.name = name if name
@@ -360,10 +363,10 @@ class Generator
     execUnlessExists fs.mkdirSync, path
   touch = (path) ->
     execUnlessExists fs.openSync, path, 'w'
-  execUnlessExists = (func, path, attr = null) ->
+  execUnlessExists = (fn, path, attr = null) ->
     if fs.existsSync(path)
       console.debug("#{path} already exists, doing nothing")
     else
-      func path, attr
+      fn path, attr
 
 module.exports = new Application
