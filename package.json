@@ -2,22 +2,23 @@
   "name": "lazy-alloy",
   "version": "0.0.5",
   "description": "Write Alloy apps in coffee-script, jade and coffee-css",
-  "main": "lazyalloy.coffee",
+  "main": "lazy-alloy.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git@github.com:vastness/lazy-alloy.git",
   "author": "zzzwww",
   "license": "BSD",
-  "main": "lazy-alloy.js",
-  "bin" : { "lazyalloy" : "./bin/lazy-alloy"},
+  "bin": {
+    "lazyalloy": "./bin/lazy-alloy"
+  },
   "dependencies": {
+    "coffee-script": "~1.8.0",
+    "commander": "2.3.0",
+    "jade": "~1.5.0",
     "match-files": "0.1.1",
-    "coffee-script": "~1.4.0",
-    "stylus": "~0.32.0",
-    "jade": "~0.28.1",
     "sty": "latest",
-    "watchr": "latest",
-    "commander": "1.1.1"
+    "stylus": "~0.48.1",
+    "watchr": "latest"
   }
 }
