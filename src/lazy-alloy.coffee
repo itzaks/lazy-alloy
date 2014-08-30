@@ -32,22 +32,27 @@ class Application
       .option('-d, --directory [dirname]', 'Set source directory (default `src/`)')
 
     @program.command('compile')
+      .alias('c')
       .description('Just compile.')
       .action(@compile)
 
     @program.command('watch')
+      .alias('w')
       .description('Watch file changes & compile.')
       .action(@watch)
 
     @program.command('build <platform>')
+      .alias('b')
       .description('Run titanium on `platform`')
       .action(@build)
 
     @program.command('new')
+      .alias('n')
       .description('Setup the lazy-alloy directory structure.')
       .action(@setup)
 
     @program.command('generate [type] [name]')
+      .alias('g')
       .description('Generate a new (lazy-)alloy type such as a controller.')
       .action(@generate)
 
