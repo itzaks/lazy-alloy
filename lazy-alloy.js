@@ -346,6 +346,9 @@ Compiler = (function() {
         break;
       }
       output = file.substring(0, file.length - from.length).toString() + to;
+      if (process.platform === 'win32') {
+        output = output.replace(/\\/g, '/');
+      }
       output = output.replace(new RegExp('(.*)' + this.subfolder), '$1app/');
       _results.push(this.file(file, output, to));
     }

@@ -245,6 +245,7 @@ class Compiler
       break if !!~ file.indexOf "lazyalloy"
 
       output = file.substring(0, file.length - from.length).toString() + to
+      output = output.replace(/\\/g, '/') if process.platform is 'win32'
       output = output.replace(new RegExp('(.*)'+@subfolder), '$1app/') # Replacing subfolder with app. Only last occurence in case it exists twice in the path.
 
       @file file, output, to
